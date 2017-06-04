@@ -1,0 +1,1698 @@
+#LyX 2.2 created this file. For more info see http://www.lyx.org/
+\lyxformat 508
+\begin_document
+\begin_header
+\save_transient_properties true
+\origin unavailable
+\textclass ctex-article
+\begin_preamble
+% 如果没有这一句命令，XeTeX会出错，原因参见
+% http://bbs.ctex.org/viewthread.php?tid=60547
+\DeclareRobustCommand\nobreakspace{\leavevmode\nobreak\ }
+\usepackage{xcolor}
+\end_preamble
+\options UTF8
+\use_default_options true
+\maintain_unincluded_children false
+\language chinese-simplified
+\language_package none
+\inputencoding utf8-plain
+\fontencoding global
+\font_roman "default" "default"
+\font_sans "default" "default"
+\font_typewriter "default" "default"
+\font_math "auto" "auto"
+\font_default_family default
+\use_non_tex_fonts true
+\font_sc false
+\font_osf false
+\font_sf_scale 100 100
+\font_tt_scale 100 100
+\graphics default
+\default_output_format pdf4
+\output_sync 0
+\bibtex_command default
+\index_command default
+\float_placement h
+\paperfontsize default
+\spacing single
+\use_hyperref true
+\pdf_bookmarks true
+\pdf_bookmarksnumbered true
+\pdf_bookmarksopen true
+\pdf_bookmarksopenlevel 1
+\pdf_breaklinks false
+\pdf_pdfborder false
+\pdf_colorlinks false
+\pdf_backref false
+\pdf_pdfusetitle true
+\papersize default
+\use_geometry true
+\use_package amsmath 1
+\use_package amssymb 1
+\use_package cancel 0
+\use_package esint 1
+\use_package mathdots 1
+\use_package mathtools 0
+\use_package mhchem 1
+\use_package stackrel 0
+\use_package stmaryrd 0
+\use_package undertilde 0
+\cite_engine basic
+\cite_engine_type default
+\biblio_style plain
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\justification true
+\use_refstyle 1
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\leftmargin 3.18cm
+\topmargin 2.54cm
+\rightmargin 3.18cm
+\bottommargin 2.54cm
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle plain
+\listings_params "language={C++},basicstyle={\linespread{1} \ttfamily },frame=single,keywordstyle={\bfseries},tabsize=4,breaklines={true}"
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Title
+ICS Lab 4 Y86­Simulator(PIPE++) 实验报告
+\end_layout
+
+\begin_layout Author
+王鹏，卢力韬 {15307130185,15307130084}@fudan.edu.cn
+\end_layout
+
+\begin_layout Section
+源代码说明
+\end_layout
+
+\begin_layout Itemize
+HardwareUnits.h: 硬件单元相关代码
+\end_layout
+
+\begin_layout Itemize
+LogicalUnits.h: 逻辑单元相关代码
+\end_layout
+
+\begin_layout Itemize
+Const.h: 规定一些常数
+\end_layout
+
+\begin_layout Itemize
+pipe.h: y86­simulator 核心部分
+\end_layout
+
+\begin_layout Itemize
+transfer.h: 将.yo文件转成二进制表示的文本文件
+\end_layout
+
+\begin_layout Itemize
+mainwindow.cpp/mainwendow.ui: 界面相关文件
+\end_layout
+
+\begin_layout Section
+环境及配置
+\end_layout
+
+\begin_layout Itemize
+Ubuntu16.04
+\end_layout
+
+\begin_layout Itemize
+g++ 5.4.0 (C++11)
+\end_layout
+
+\begin_layout Itemize
+Qt 5.7.0 (64 bit)
+\end_layout
+
+\begin_layout Itemize
+由于Qt许可协议的限制，我们无法发布静态编译的程序。推荐在电脑上重新编译一遍。
+\end_layout
+
+\begin_layout Section
+使用方法
+\end_layout
+
+\begin_layout Standard
+直接双击release目录下的CPU_GUI文件，会弹出一个对话框选择打开文件。可以打开demo文件夹下的一些示例文件作为演示。
+\end_layout
+
+\begin_layout Section
+界面说明
+\end_layout
+
+\begin_layout Subsection
+支持功能
+\end_layout
+
+\begin_layout Standard
+支持查看任意时刻：
+\end_layout
+
+\begin_layout Itemize
+每个流水线寄存器的值
+\end_layout
+
+\begin_layout Itemize
+每个内存值
+\end_layout
+
+\begin_layout Itemize
+每条指令目前处于何种阶段
+\end_layout
+
+\begin_layout Itemize
+支持输入.yo(二进制文件)
+\end_layout
+
+\begin_layout Standard
+在交互方面，支持无限步的单步前进与单步后退，也支持连续多步的执行与暂停执行，并支持调整程序运行的快慢。
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename pasted3.png
+	width 90text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Y86Simulator 程序界面
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+界面实现
+\end_layout
+
+\begin_layout Standard
+界面实现上采用了Qt，Qt是一个C++的库，因此界面程序可以直接调用内核部分产生的代码。对于界面程序来说，内核部分的所有变量都是可见的。因此每个时刻将要显示什么
+就直接读取代码里面相应的变量就可以了。
+\end_layout
+
+\begin_layout Standard
+并且使用QtCreator编写界面十分直观。界面设计可以直接拖空间就可以。每个空间在代码上体现的就是一个个对象。
+\end_layout
+
+\begin_layout Subsubsection
+每个流水线寄存器的显示
+\end_layout
+
+\begin_layout Standard
+与内核的沟通用一句#include <pipe.h>就可以实现了。
+\end_layout
+
+\begin_layout Standard
+在每一个Clock Cycle，读取pipe.h内部相应的变量，刷新相应的QLineinput上面显示的值就可以了。
+\end_layout
+
+\begin_layout Subsubsection
+每个指令代码的显示
+\end_layout
+
+\begin_layout Standard
+使用QTableWidget显示每一句指令。在读入.yo文件时，预处理出每个指令开头地址与所在行数的对应关系。并显示在QTableWidget中。
+\end_layout
+
+\begin_layout Standard
+为了跟踪每一条语句目前的执行阶段，在每一个阶段的寄存器中附带地传递了一个值begin，表示当前时刻此阶段通过的指令所在的地址，这样我们就知道每一条语句目前处于流
+水线的何种阶段。在每一个Clock Cycle，刷新对应QTableWidget行的颜色为对应阶段所代表的颜色。
+\end_layout
+
+\begin_layout Subsubsection
+每个内存值的显示
+\end_layout
+
+\begin_layout Standard
+同样使用QTableWidget显示每一个内存值。这里我们查看的是每一个字节的值。显示的时候只需要到内核部分代码中的HardwareUnits中的Memory结
+构体中查看数组的值就可以了。
+\end_layout
+
+\begin_layout Subsubsection
+前进、暂停、后退等实现
+\end_layout
+
+\begin_layout Standard
+我们只需要在Qt中将前进、暂停等按钮的按下事件与内核部分处理一步的函数绑定在一起就可以。
+\end_layout
+
+\begin_layout Standard
+关于后退的实现：我们在代码中存储了每一个ClockCycle下CPU内所有的状态。因此，每一次后退，我们只需要将CPU状态恢复到上一个Clockcycle即可。
+\end_layout
+
+\begin_layout Section
+内核说明
+\end_layout
+
+\begin_layout Subsection
+支持指令：
+\end_layout
+
+\begin_layout Enumerate
+nop halt ret
+\end_layout
+
+\begin_layout Enumerate
+rrmovl irmvol rmovl mrmovl
+\end_layout
+
+\begin_layout Enumerate
+pushl popl
+\end_layout
+
+\begin_layout Enumerate
+opl cmpl iropl
+\end_layout
+
+\begin_layout Enumerate
+jxx call
+\end_layout
+
+\begin_layout Standard
+对任意的y86指令有效。
+\end_layout
+
+\begin_layout Subsection
+冒险问题的解决：
+\end_layout
+
+\begin_layout Standard
+数据冒险：
+\end_layout
+
+\begin_layout Standard
+转发：通过流水线寄存器＋一些额外的数据通路和逻辑选择单元，将前面指令所未完成的写通过wire转发，从而知道最新的值，能使当前指令通过流水线寄存器而不需要任何的暂
+停。能解决绝大部分的冒险问题。
+\end_layout
+
+\begin_layout Standard
+控制以及数据冒险：
+\end_layout
+
+\begin_layout Standard
+完备的流水线控制逻辑。
+\end_layout
+
+\begin_layout Standard
+主要需要解决的问题：
+\end_layout
+
+\begin_layout Itemize
+处理return：此时流水线必须暂停知道写回阶段。
+\end_layout
+
+\begin_layout Itemize
+加载/使用冒险：在一条从存储器(内存)中读出一个值的指令和一条使用该值的指令之间，流水线必
+\end_layout
+
+\begin_layout Itemize
+须暂停一个周期。
+\end_layout
+
+\begin_layout Itemize
+错误预测的条件分支：需要撤销掉错误的指令
+\end_layout
+
+\begin_layout Itemize
+异常：当指令导致异常，需要禁止后面的指令更新程序员可见的状态&停止执行
+\end_layout
+
+\begin_layout Standard
+具体的处理方法：
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Tabular
+<lyxtabular version="3" rows="4" columns="6">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+条件
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+Fetch
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+Decode
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+Execyute
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+Memory
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+WriteBack
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+处理RET
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+暂停
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+气泡
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+正常
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+正常
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+正常
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+加载/使用冒险
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+暂停
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+暂停
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+气泡
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+正常
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+正常
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+预测错误的分支
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+正常
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+气泡
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+气泡
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+正常
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+正常
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+相关冒险的测试代码：
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+  // Ret Hazard  
+\end_layout
+
+\begin_layout Plain Layout
+
+    0x000: 30f340000000 | 	irmovl mem,%ebx
+\end_layout
+
+\begin_layout Plain Layout
+
+    0x006: 504300000000 | 	mrmovl  0(%ebx),%esp 
+\end_layout
+
+\begin_layout Plain Layout
+
+    0x00c: 90           | 	ret		   
+\end_layout
+
+\begin_layout Plain Layout
+
+    0x00d: 00           | 	halt
+\end_layout
+
+\begin_layout Plain Layout
+
+    0x00e: 30f605000000 | rtnpt:  irmovl $5,%esi  
+\end_layout
+
+\begin_layout Plain Layout
+
+    0x014: 00           | 	halt
+\end_layout
+
+\begin_layout Plain Layout
+
+    0x040:              | .pos 0x40
+\end_layout
+
+\begin_layout Plain Layout
+
+    0x040: 50000000     | mem:	.long stack  0x050:             
+\end_layout
+
+\begin_layout Plain Layout
+
+    0x050:              | .pos 0x50
+\end_layout
+
+\begin_layout Plain Layout
+
+    0x050: 0e000000     | stack:	.long rtnpt  
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+  //Mispredicted Branch:
+\end_layout
+
+\begin_layout Plain Layout
+
+    0x000: 6300         | xorl %eax, %eax
+\end_layout
+
+\begin_layout Plain Layout
+
+    0x002: 7413000000   | jne target
+\end_layout
+
+\begin_layout Plain Layout
+
+    0x007: 30f202000000 | irmovl $2, %edx
+\end_layout
+
+\begin_layout Plain Layout
+
+    0x00d: 30f303000000 | irmovl $3, %ebx
+\end_layout
+
+\begin_layout Plain Layout
+
+    0x013:              | target:
+\end_layout
+
+\begin_layout Plain Layout
+
+    0x013: 30f001000000 | irmovl $1, %eax
+\end_layout
+
+\begin_layout Plain Layout
+
+    0x019: 00           | halt
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\end_layout
+
+\begin_layout Plain Layout
+
+  //Data Hazard:
+\end_layout
+
+\begin_layout Plain Layout
+
+    0x000: 30f0e8030000 | irmovl $1000, %eax
+\end_layout
+
+\begin_layout Plain Layout
+
+    0x006: 30f39a020000 | irmovl $666, %ebx
+\end_layout
+
+\begin_layout Plain Layout
+
+    0x00c: 403000000000 | rmmovl %ebx, (%eax)
+\end_layout
+
+\begin_layout Plain Layout
+
+    0x012: 501000000000 | mrmovl (%eax), %ecx
+\end_layout
+
+\begin_layout Plain Layout
+
+    0x018: 2012         | rrmovl %ecx, %edx
+\end_layout
+
+\begin_layout Plain Layout
+
+    0x01a: 00           | halt
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+­ 新增指令（Bonus）
+\end_layout
+
+\begin_layout Standard
+cmpl,iropl和ircmpl。
+\end_layout
+
+\begin_layout Standard
+cmpl: 寄存器值与寄存器值的比较
+\end_layout
+
+\begin_layout Standard
+iropl: 立即数与寄存器之间的运算并赋值到寄存器中(包括 add sub and xor)
+\end_layout
+
+\begin_layout Standard
+ircmpl: 立即数与寄存器之间的比较
+\end_layout
+
+\begin_layout Standard
+具体的处理方法：
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+  //cmpl rA, rB
+\end_layout
+
+\begin_layout Plain Layout
+
+  Fetch: icode:ifun<-M1[PC]   rA:rB<-M1[PC+1]  valP <-PC + 2
+\end_layout
+
+\begin_layout Plain Layout
+
+  Decode: valA<-R[rA]  valB<-R[rB]
+\end_layout
+
+\begin_layout Plain Layout
+
+  Execute: valE<-valB - valA   Set CC
+\end_layout
+
+\begin_layout Plain Layout
+
+  Memory:
+\end_layout
+
+\begin_layout Plain Layout
+
+  Writeback:
+\end_layout
+
+\begin_layout Plain Layout
+
+  PC update: PC<-valP
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+  //iropl V, rB
+\end_layout
+
+\begin_layout Plain Layout
+
+  Fetch: icode:ifun<-M1[PC]   rA:rB<-M1[PC+1]  valC<-M4[PC+2]   valP<-PC
+ + 6
+\end_layout
+
+\begin_layout Plain Layout
+
+  Decode: valB<-R[rB]
+\end_layout
+
+\begin_layout Plain Layout
+
+  Execute: valE<-valB OP valC   Set CC
+\end_layout
+
+\begin_layout Plain Layout
+
+  Memory:
+\end_layout
+
+\begin_layout Plain Layout
+
+  Writeback: R[rB]<-valE
+\end_layout
+
+\begin_layout Plain Layout
+
+  PC update: PC<-valP
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+  //ircmpl V, rB
+\end_layout
+
+\begin_layout Plain Layout
+
+  Fetch: icode:ifun<-M1[PC]   rA:rB<-M1[PC+1]  valC<-M4[PC+2]   valP<-PC
+ + 6
+\end_layout
+
+\begin_layout Plain Layout
+
+  Decode: valB<-R[rB]
+\end_layout
+
+\begin_layout Plain Layout
+
+  Execute: valE<-valB - valC   Set CC
+\end_layout
+
+\begin_layout Plain Layout
+
+  Memory:
+\end_layout
+
+\begin_layout Plain Layout
+
+  Writeback:
+\end_layout
+
+\begin_layout Plain Layout
+
+  PC update: PC<-valP
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+效率上的优化（Bonus）
+\end_layout
+
+\begin_layout Standard
+课程中中PIPE对ret指令的处理：将ret的“下一条”指令阻塞在取指阶段，直至上一条指令访存阶段结束(即进入写回阶段)，这样做有一个缺陷就是：效率不高，因为对
+于每次的ret，都会出现三个周期的时间的浪费。
+\end_layout
+
+\begin_layout Standard
+因此我们采取了这样的做法：加入程序员不可见的硬件栈，对ret的返回地址在Fetch阶段进行预测，这样就没有暂停。
+\end_layout
+
+\begin_layout Standard
+在call的时候将下一条指令压入栈中；在ret的时候将栈顶弹出并作为ret的返回地址的预测值。这样做的原理是一般情况下函数的调用和返回是成对出现的，基本上都能预
+测正确。但是这样子做是可能会出现预测错误的情况的，比如这两种情况：
+\end_layout
+
+\begin_layout Enumerate
+jxx(条件跳转)预测错误带来的连锁效应。
+\end_layout
+
+\begin_layout Enumerate
+有时候会出现手动压返回地址的情况，没用call就ret。
+\end_layout
+
+\begin_layout Standard
+所以我们需要一个恢复机制：
+\end_layout
+
+\begin_layout Standard
+对ret预测正确性的判定，可以在ret完成访存阶段(Memory)后得到。如果预测错误，那么给M,E,D流水线寄存器插入bubble信号来撤销错误的操作即可。
+\end_layout
+
+\begin_layout Standard
+还有一个问题，就是如果ret返回值预测错误的话，我们加入的硬件栈会被污染。所以我们需要一个可以快速恢复的栈：每次操作只新建，不修改（其实是一个树的结构）
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename pasted1.png
+	width 80text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+恢复机制示意图
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:恢复机制示意图"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+如图
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:恢复机制示意图"
+
+\end_inset
+
+所示:在时刻1,2,3,5,6对栈进行的是push操作,在时刻4进行的是pop操作,在时刻7没有操作。如果需要恢复,只需要将时间戳­-3(ret预测错误)或者-
+­2(jxx预测错误)即可。 
+\end_layout
+
+\begin_layout Standard
+还有一个缺陷:由于最早的错误指令会执行完Execute阶段,程序员可见的条件码可能会被污染,但是注意到 SelectPC在需要用到条件码的时候,条件码已经被正确
+的指令更新了,不会影响整体的逻辑(不过这的确是个 缺陷,其实如果把条件码也改成可持久化的就可以解决这个问题)
+\end_layout
+
+\begin_layout Standard
+测试结果(递归求fibonacci数列第n项):
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Tabular
+<lyxtabular version="3" rows="3" columns="5">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+初始值
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+10
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+20
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+30
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+40
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+加入硬件栈前
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+217(周期)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+417
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+617
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+817
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+加入硬件栈后
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+184
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+354
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+524
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+694
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+可以看出效率提升了很多。
+\end_layout
+
+\begin_layout Section
+lab过程和感想
+\end_layout
+
+\begin_layout Standard
+王鹏：在这次的project中，我负责的是kernel部分。
+\end_layout
+
+\begin_layout Standard
+最开始对于这个kernel我毫无头绪，不知道从何下手，所以只能按照自己的理解先把大概的框架弄出来，后来根据教材提供的hcl语言和pipeline的配图，了解了每
+个单元具体所做的事情以后就比较好些了。因为我对于每个阶段的pipeline都开了一个struct，中间过程中有有些地方是调用当前的pipe(组合逻辑)还是上一个
+阶段的pipe(时序逻辑)我没有分得太清楚，结果调bug调了很长的时间，我认为这是不应该的，最好是一开始就把组合逻辑和时序逻辑分清楚，这样就不会出那么多bug。
+后期的难点是控制逻辑的设计，因为这是一个很烧脑的事情，要自己先模拟好冒险的情况和处理方法，才能清楚自己在写什么东西。
+\end_layout
+
+\begin_layout Standard
+​但是光完成教程上的东西是远远不够的，于是我想在写好的pipe的基础上加入一些其他的东西。首先是加入新的指令，cmpl这iropl这两个指令加上去不算很难，后面
+我还想加入一个比较奇葩的swapl(交换两个寄存器的值)的操作，但是后面发现register files只有一个写端口，后来这个想法就报废了。
+\end_layout
+
+\begin_layout Standard
+​然而我在书上翻到了一个扩展阅读，里面介绍了现代的cpu对于call/ret操作是有一个专门的硬件栈进行预测的，我想了想觉得这是个很好的feature，而且感觉
+是可以实现的。于是我尝试去实现了这个功能，后来还调了整整一天的bug才把教材提供的测试文件们给调过去。最终测试是效率的确提高了不少，非常开心。
+\end_layout
+
+\begin_layout Standard
+总而言之，我觉得这次的y86-simulator的设计非常的有意思，而且能让我们更加深入地理解计算机系统，虽然中间过程很坎坷，但是这对于我而言是非常有意义的事情
+。
+\end_layout
+
+\begin_layout Standard
+卢力韬：在这次的project中，我负责的是界面部分。并且还实现了一个Y86的as（编译器）（虽然后来没用到……）。
+\end_layout
+
+\begin_layout Standard
+这次写PJ也是我第一次写有界面的程序。刚开始我也不知道如何实现一个界面。通过网上查找一些资料，最后选定了Qt库。在编写的过程中，要看到很多队友的代码，以及有稍稍
+修改队友的代码。这对我也是一种比较新的体验，因为要将自己的代码嵌入到别人代码中。还不能将别人和自己的代码改错。特别提一下，因为是两个人写代码，我们用github
+实现我们代码的同步（虽然用的还不是很熟练）。
+\end_layout
+
+\begin_layout Standard
+自己实现的Y86编译器也带给我挺多收获，首先，因为程序输入格式约束并不严格，所以程序要应对所有的情况，所以编写起来比较繁，后来看到有人用regex先预处理一下输
+入，这是一个很好的方法。
+\end_layout
+
+\begin_layout Standard
+通过这次写PJ，我学习了一下Qt的用法。并且因为要看懂队友的代码，我们也复习了很多CPU流水线的知识。总的来说，这次PJ还是很有意思的。
+\end_layout
+
+\end_body
+\end_document

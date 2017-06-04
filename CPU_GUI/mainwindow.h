@@ -1,0 +1,49 @@
+#ifndef MAINWINDOW_H
+#define MAINWINDOW_H
+#include <QMainWindow>
+#include <QTableWidget>
+#include <QTableView>
+#include <QFileDialog>
+#include <QMessageBox>
+#include <QTimer>
+#include <QPalette>
+#include <bits/stdc++.h>
+using namespace std;
+#include "pipe.h"
+#include "bin2ins.h"
+#include "transfer.h"
+namespace Ui {
+class MainWindow;
+}
+
+class MainWindow : public QMainWindow
+{
+    Q_OBJECT
+
+public:
+    explicit MainWindow(QWidget *parent = 0);
+    ~MainWindow();
+
+private slots:
+    void on_MainWindow_destroyed();
+    void timerGo();
+    void timerPause();
+    void stepNext();
+    void stepOne();
+    void showAll();
+    void pipeReset();
+    void on_bReset_clicked();
+    void setcol(int rn, QColor col);
+    void on_horizontalSlider_valueChanged(int value);
+
+    void on_bBack_clicked();
+
+    void on_bExit_clicked();
+
+private:
+    Ui::MainWindow *ui;
+    QTimer *timer;
+    QAbstractItemView *mem, *ins;
+
+};
+#endif // MAINWINDOW_H
